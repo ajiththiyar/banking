@@ -5,29 +5,29 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/http"
+
+	"github.com/ajiththiyar/banking/service"
 )
 
-type Customer struct {
-	Name    string `json:"fullname" xml:"fullname"`
-	City    string `json:"city" xml:"city"`
-	Zipcode string `json:"zipcode" xml:"zipcode"`
+type CustomerHandlers struct {
+	service service.CustomerService
 }
 
 func Welcome(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World")
 }
 
-func Customers(w http.ResponseWriter, r *http.Request) {
-	c := []Customer{
-		{"aj", "nashik", "394585"},
-		{"manish", "dhule", "365585"},
-		{"anup", "mumbai", "394235"},
-	}
-	if r.Header.Get("Content-Type") == "application/xml" {
-		w.Header().Add("Content-Type", "application/xml")
-		xml.NewEncoder(w).Encode(c)
+func (ch *CustomerHandlers) GetAllCustomers(w http.ResponseWriter, r *http.Request) {
+	c, err := ch.service.GetAllCustomers()
+	if err != nil {
+		panic(err)
 	} else {
-		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(c)
+		if r.Header.Get("Content-Type") == "application/xml" {
+			w.Header().Add("Content-Type", "application/xml")
+			xml.NewEncoder(w).Encode(c)
+		} else {
+			w.Header().Add("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(c)
+		}
 	}
 }
