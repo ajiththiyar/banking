@@ -17,7 +17,7 @@ func RunApp() {
 	// define routes
 	router.HandleFunc("/welcome", Welcome).Methods(http.MethodGet)
 	router.HandleFunc("/customers", ch.GetAllCustomers).Methods(http.MethodGet)
-	// router.HandleFunc("/customers", CreateCustomer).Methods(http.MethodPost)
+	router.HandleFunc("/customer/{customer_id:[0-9]+}", ch.GetCustomer).Methods(http.MethodGet)
 	// router.HandleFunc("/customer/{customer_id:[0-9]+}", GetCustomer).Methods(http.MethodGet)
 
 	// listen on port
