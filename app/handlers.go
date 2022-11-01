@@ -21,15 +21,12 @@ func Welcome(w http.ResponseWriter, r *http.Request) {
 func (ch *CustomerHandlers) GetAllCustomers(w http.ResponseWriter, r *http.Request) {
 	c, appError := ch.service.GetAllCustomers()
 	if appError != nil {
-		w.WriteHeader(appError.Code)
-		fmt.Fprintf(w, appError.Message)
+		WriteResponse(w, appError.Code, appError.EMessage(), false)
 	} else {
 		if r.Header.Get("Content-Type") == "application/xml" {
-			w.Header().Add("Content-Type", "application/xml")
-			xml.NewEncoder(w).Encode(c)
+			WriteResponse(w, http.StatusOK, c, true)
 		} else {
-			w.Header().Add("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(c)
+			WriteResponse(w, http.StatusOK, c, false)
 		}
 	}
 }
@@ -39,15 +36,25 @@ func (ch *CustomerHandlers) GetCustomer(w http.ResponseWriter, r *http.Request) 
 
 	c, appError := ch.service.GetCustomer(vars["customer_id"])
 	if appError != nil {
-		w.WriteHeader(appError.Code)
-		fmt.Fprintf(w, appError.Message)
+		WriteResponse(w, appError.Code, appError.EMessage(), false)
 	} else {
 		if r.Header.Get("Content-Type") == "application/xml" {
-			w.Header().Add("Content-Type", "application/xml")
-			xml.NewEncoder(w).Encode(c)
+			WriteResponse(w, http.StatusOK, c, true)
 		} else {
-			w.Header().Add("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(c)
+			WriteResponse(w, http.StatusOK, c, false)
 		}
 	}
+}
+
+func WriteResponse(w http.ResponseWriter, code int, data interface{}, xmlVal bool) {
+	if xmlVal {
+		w.Header().Add("Content-Type", "application/xml")
+		w.WriteHeader(code)
+		xml.NewEncoder(w).Encode(data)
+	} else {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(code)
+		json.NewEncoder(w).Encode(data)
+	}
+
 }
